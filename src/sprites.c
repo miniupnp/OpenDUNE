@@ -10,6 +10,7 @@
 #include "os/sleep.h"
 #include "os/strings.h"
 
+#include "timer.h"
 #include "sprites.h"
 
 #include "codec/format80.h"

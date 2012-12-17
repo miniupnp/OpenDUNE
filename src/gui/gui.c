@@ -4588,7 +4588,9 @@ void GUI_SetPaletteAnimated(uint8 *palette, int16 ticksOfAnimation)
 		if (progress) {
 			GFX_SetPalette(data);
 
-			while (g_timerSleep < timerCurrent) sleepIdle();
+			while (g_timerSleep < timerCurrent) {
+				sleepIdle();
+			}
 		}
 	} while (progress);
 }
