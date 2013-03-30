@@ -1166,12 +1166,23 @@ static bool Unknown_25C4_000E(int screen_magnification, VideoScaleFilter filter)
 	return true;
 }
 
+/**
+ * print program usage
+ */
+static void usage(void)
+{
+	printf("usage: opendune [options]\n\n");
+	printf("available options:\n");
+	printf("\t--help      Print this message and quit\n");
+}
+
 #if defined(__APPLE__)
 int SDL_main(int argc, char **argv)
 #else
 int main(int argc, char **argv)
 #endif /* __APPLE__ */
 {
+	int i;
 #if defined(_WIN32)
 	#if defined(__MINGW32__) && defined(__STRICT_ANSI__)
 		int __cdecl __MINGW_NOTHROW _fileno (FILE*);
@@ -1189,8 +1200,17 @@ int main(int argc, char **argv)
 #endif
 	CrashLog_Init();
 
-	VARIABLE_NOT_USED(argc);
-	VARIABLE_NOT_USED(argv);
+	/* command line argument parsing */
+	for (i = 1; i < argc; i++) {
+		if (0 == strcmp(argv[i], "--help")) {
+			usage();
+			exit(0);
+		} else {
+			Error("Unrecognized argument : %s\n", argv[i]);
+			usage();
+			exit(1);
+		}
+	}
 
 	if (!File_Init()) {
 		Error("Cannot initialise files. Does %s directory exist ?\n", DATA_DIR);
