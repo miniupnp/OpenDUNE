@@ -1173,7 +1173,9 @@ static void usage(void)
 {
 	printf("usage: opendune [options]\n\n");
 	printf("available options:\n");
-	printf("\t--help      Print this message and quit\n");
+	printf("\t--help              Print this message and quit\n");
+	printf("\t--scale2x           Enable Scale2x screen scaling algorithm\n");
+	printf("\t--scale-factor n    screen scaling factor (default 2)\n");
 }
 
 #if defined(__APPLE__)
@@ -1183,6 +1185,8 @@ int main(int argc, char **argv)
 #endif /* __APPLE__ */
 {
 	int i;
+	VideoScaleFilter scale_filter = FILTER_NEAREST_NEIGHBOR;
+	int scaling_factor = 2;
 #if defined(_WIN32)
 	#if defined(__MINGW32__) && defined(__STRICT_ANSI__)
 		int __cdecl __MINGW_NOTHROW _fileno (FILE*);
@@ -1205,6 +1209,14 @@ int main(int argc, char **argv)
 		if (0 == strcmp(argv[i], "--help")) {
 			usage();
 			exit(0);
+		} else if (0 == strcmp(argv[i], "--scale2x")) {
+			scale_filter = FILTER_SCALE2X;
+		} else if (0 == strcmp(argv[i], "--scale-factor")) {
+			if (++i >= argc) {
+				Error("--scale-factor need 1 argument");
+				exit(1);
+			}
+			scaling_factor = atoi(argv[i]);
 		} else {
 			Error("Unrecognized argument : %s\n", argv[i]);
 			usage();
@@ -1226,7 +1238,7 @@ int main(int argc, char **argv)
 
 	Drivers_All_Init();
 
-	if (!Unknown_25C4_000E(2, FILTER_NEAREST_NEIGHBOR)) exit(1);
+	if (!Unknown_25C4_000E(scaling_factor, scale_filter)) exit(1);
 
 	g_var_7097 = 0;
 
