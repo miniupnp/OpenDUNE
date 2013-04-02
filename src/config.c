@@ -42,13 +42,18 @@ bool Config_Read(const char *filename, DuneCfg *config)
 
 	sum = 0;
 
+printf("Config_Read() coded/decoded\n");
 	for (c = (uint8 *)config, i = 7; i >= 0; c++, i--) {
+printf("%2ld %02x\t", c - (uint8 *)config, *c);
 		*c ^= 0xA5;
 		*c -= i;
+printf("%02x\n", *c);
 		sum += *c;
 	}
+printf("%2ld %02x\n", c - (uint8 *)config, *c);
 
 	sum ^= 0xA5;
+printf("sum = %02x  checksum = %02x\n", sum, config->checksum);
 
 	return (sum == config->checksum);
 }
@@ -73,14 +78,19 @@ bool Config_Write(const char * filename, DuneCfg *config)
 	if (f == NULL) return false;
 
 	sum = 0;
+printf("Config_Write() decoded/coded\n");
 	for (c1 = (uint8 *)config, c2 = coded, i = 7; i >= 0; c1++, c2++, i--) {
+printf("%2ld %02x\t", c1 - (uint8 *)config, *c1);
 		*c2 = (*c1 + i) ^ 0xA5;
+printf("%02x\n", *c2);
 		sum += *c1;
 	}
+printf("%2ld %02x\n", c1 - (uint8 *)config, *c1);
 	/* Language */
 	*c2++ = *c1++;
 	sum ^= 0xA5;
 	*c2 = sum;
+printf("sum = %02x  checksum = %02x\n", sum, config->checksum);
 	write = fwrite(coded, 1, sizeof(DuneCfg), f);
 	fclose(f);
 	return (write == sizeof(DuneCfg));
