@@ -1175,6 +1175,7 @@ static void usage(void)
 	printf("available options:\n");
 	printf("\t--help              Print this message and quit\n");
 	printf("\t--scale2x           Enable Scale2x screen scaling algorithm\n");
+	printf("\t--hqx               Enable hqx screen scaling algorithm\n");
 	printf("\t--scale-factor n    screen scaling factor (default 2)\n");
 }
 
@@ -1211,6 +1212,8 @@ int main(int argc, char **argv)
 			exit(0);
 		} else if (0 == strcmp(argv[i], "--scale2x")) {
 			scale_filter = FILTER_SCALE2X;
+		} else if (0 == strcmp(argv[i], "--hqx")) {
+			scale_filter = FILTER_HQX;
 		} else if (0 == strcmp(argv[i], "--scale-factor")) {
 			if (++i >= argc) {
 				Error("--scale-factor need 1 argument");
