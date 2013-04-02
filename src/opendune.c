@@ -1173,7 +1173,9 @@ static void usage(void)
 {
 	printf("usage: opendune [options]\n\n");
 	printf("available options:\n");
-	printf("\t--help      Print this message and quit\n");
+	printf("\t--help              Print this message and quit\n");
+	printf("\t--set-lang language Set language :\n");
+	printf("\t                    0=English, 1=French, 2=German, 3=Italian, 4=Spanish\n");
 }
 
 #if defined(__APPLE__)
@@ -1183,6 +1185,8 @@ int main(int argc, char **argv)
 #endif /* __APPLE__ */
 {
 	int i;
+	int set_lang = -1;
+	bool commit_dune_cfg = false;
 #if defined(_WIN32)
 	#if defined(__MINGW32__) && defined(__STRICT_ANSI__)
 		int __cdecl __MINGW_NOTHROW _fileno (FILE*);
@@ -1205,6 +1209,16 @@ int main(int argc, char **argv)
 		if (0 == strcmp(argv[i], "--help")) {
 			usage();
 			exit(0);
+		} else if (0 == strcmp(argv[i], "--set-lang")) {
+			if (++i >= argc) {
+				Error("--set-lang needs 1 argument\n");
+				exit(1);
+			}
+			set_lang = atoi(argv[i]);
+			if (set_lang < 0 || set_lang >= LANGUAGE_MAX) {
+				Error("invalid language\n");
+				exit(1);
+			}
 		} else {
 			Error("Unrecognized argument : %s\n", argv[i]);
 			usage();
@@ -1217,8 +1231,17 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 
+	/* Loading / writing config from/to dune.cfg */
 	if (!Config_Read("dune.cfg", &g_config)) {
-		Error("Missing dune.cfg file.\n");
+		Config_Default(&g_config);
+		commit_dune_cfg = true;
+	}
+	if (set_lang >= 0) {
+		g_config.language = set_lang;
+		commit_dune_cfg = true;
+	}
+	if (commit_dune_cfg && !Config_Write("dune.cfg", &g_config)) {
+		Error("Error writing to dune.cfg file.\n");
 		exit(1);
 	}
 
