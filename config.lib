@@ -678,7 +678,10 @@ make_compiler_cflags() {
 			exit 1
 		fi
 
-		flags="$flags -ansi -pedantic"
+		if [ "$os" != "OSX" ]; then
+			# there are issues in the system includes of OS X with -ansi
+			flags="$flags -ansi -pedantic"
+		fi
 		flags="$flags -fno-common"
 		flags="$flags -Wall -Wsign-compare -Wundef"
 		flags="$flags -Wwrite-strings -Wpointer-arith"
