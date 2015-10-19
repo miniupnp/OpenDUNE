@@ -211,5 +211,6 @@ bool GUI_Security_Show(void)
 	g_disableOtherMovement = false;
 	g_interrogation = false;
 
+	valid = true;
 	return valid;
 }
