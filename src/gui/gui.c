@@ -4176,7 +4176,7 @@ void GUI_HallOfFame_Show(uint16 score)
 	GUI_Mouse_Hide_Safe();
 
 	if (score == 0xFFFF) {
-		if (!File_Exists("SAVEFAME.DAT")) {
+		if (!File_Exists_Personal("SAVEFAME.DAT")) {
 			GUI_Mouse_Show_Safe();
 			return;
 		}
@@ -4185,21 +4185,21 @@ void GUI_HallOfFame_Show(uint16 score)
 
 	data = (HallOfFameStruct *)GFX_Screen_Get_ByIndex(SCREEN_2);
 
-	if (!File_Exists("SAVEFAME.DAT")) {
+	if (!File_Exists_Personal("SAVEFAME.DAT")) {
 		uint16 written;
 
 		memset(data, 0, 128);
 
 		GUI_HallOfFame_Encode(data);
 
-		fileID = File_Open("SAVEFAME.DAT", FILE_MODE_WRITE);
+		fileID = File_Open_Personal("SAVEFAME.DAT", FILE_MODE_WRITE);
 		written = File_Write(fileID, data, 128);
 		File_Close(fileID);
 
 		if (written != 128) return;
 	}
 
-	File_ReadBlockFile("SAVEFAME.DAT", data, 128);
+	File_ReadBlockFile_Personal("SAVEFAME.DAT", data, 128);
 
 	GUI_HallOfFame_Decode(data);
 
@@ -4255,7 +4255,7 @@ void GUI_HallOfFame_Show(uint16 score)
 
 		GUI_HallOfFame_Encode(data);
 
-		fileID = File_Open("SAVEFAME.DAT", FILE_MODE_WRITE);
+		fileID = File_Open_Personal("SAVEFAME.DAT", FILE_MODE_WRITE);
 		File_Write(fileID, data, 128);
 		File_Close(fileID);
 	}
