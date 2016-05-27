@@ -6,6 +6,7 @@
 #include "types.h"
 #include "../os/strings.h"
 #include "../os/sleep.h"
+#include "../os/error.h"
 
 #include "security.h"
 #include "../file.h"
@@ -167,6 +168,7 @@ bool GUI_Security_Show(void)
 		GUI_Security_NormaliseText(buffer);
 
 		strncpy(g_readBuffer, String_Get_ByIndex(questionIndex + 2), g_readBufferSize);
+		Debug("your answer: %s\tValid answer: %s\n", buffer, g_readBuffer);
 		GUI_Security_NormaliseText(g_readBuffer);
 
 		if (strcasecmp(g_readBuffer, buffer) != 0) {
