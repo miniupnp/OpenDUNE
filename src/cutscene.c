@@ -776,8 +776,10 @@ static void GameCredits_LoadPalette(void)
 	s_buffer_182E = GFX_Screen_Get_ByIndex(SCREEN_3);
 	s_buffer_1832 = (uint8 *)s_buffer_182E + SCREEN_WIDTH * g_curWidgetHeight;
 
-	g_palette1 = malloc(256 * 3 * 10);
-	g_palette2 = calloc(1, 256 * 3);
+	if (g_palette1) Warning("g_palette1 already allocated\n");
+	else g_palette1 = malloc(256 * 3 * 10);
+	if (g_palette2) Warning("g_palette2 already allocated\n");
+	else g_palette2 = calloc(1, 256 * 3);
 
 	File_ReadBlockFile("IBM.PAL", g_palette1, 256 * 3);
 

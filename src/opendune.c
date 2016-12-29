@@ -702,8 +702,13 @@ static void GameLoop_GameIntroAnimationMenu(void)
 
 			Sound_Output_Feedback(0xFFFE);
 
+#if 0
 			File_ReadBlockFile("IBM.PAL", g_palette_998A, 256 * 3);
 			memmove(g_palette1, g_palette_998A, 256 * 3);
+#else
+printf(" File_ReadBlockFile(\"IBM.PAL\", g_palette1, 256 * 3);\n");
+			File_ReadBlockFile("IBM.PAL", g_palette1, 256 * 3);
+#endif
 
 			if (!g_canSkipIntro) {
 				File_Create_Personal("ONETIME.DAT");
@@ -923,8 +928,10 @@ static void GameLoop_Main(void)
 	g_selectionType = SELECTIONTYPE_MENTAT;
 	g_selectionTypeNew = SELECTIONTYPE_MENTAT;
 
-	g_palette1 = calloc(1, 256 * 3);
-	g_palette2 = calloc(1, 256 * 3);
+	if (g_palette1) Warning("g_palette1\n");
+	else g_palette1 = calloc(1, 256 * 3);
+	if (g_palette2) Warning("g_palette2\n");
+	else g_palette2 = calloc(1, 256 * 3);
 
 	g_readBufferSize = 12000;
 	g_readBuffer = calloc(1, g_readBufferSize);
@@ -933,9 +940,14 @@ static void GameLoop_Main(void)
 
 	free(g_readBuffer); g_readBuffer = NULL;
 
+#if 0
 	File_ReadBlockFile("IBM.PAL", g_palette_998A, 256 * 3);
 
 	memmove(g_palette1, g_palette_998A, 256 * 3);
+#else
+printf(" File_ReadBlockFile(\"IBM.PAL\", g_palette1, 256 * 3);\n");
+	File_ReadBlockFile("IBM.PAL", g_palette1, 256 * 3);
+#endif
 
 	GUI_ClearScreen(SCREEN_0);
 
