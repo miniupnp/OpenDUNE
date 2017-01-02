@@ -38,4 +38,4 @@ script:
   - 'cd $TRAVIS_BUILD_DIR'
   - './configure --prefix-dir=${HOME}'
   - 'make -j3'
-  - 'if [ "$TRAVIS_OS_NAME" = "osx" ]; then make bundle_dmg ; else make install ; fi'
+  - 'if [ "$TRAVIS_OS_NAME" = "osx" ]; then make bundle_dmg VERBOSE=1 ; else make install ; fi'
