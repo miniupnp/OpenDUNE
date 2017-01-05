@@ -123,6 +123,7 @@ bundle_dmg: bundle
 	bless --folder $(MOUNT_DIR) --openfolder $(MOUNT_DIR) && \
 	hdiutil detach $$DEV_NAME
 	$(Q)$(RM) $(BUNDLES_DIR)/$(BUNDLE_NAME).dmg
+	$(Q)mkdir -p $(BUNDLES_DIR)
 	$(Q)hdiutil convert $(TMP_DMG) -format UDZO -imagekey zlib-level=9 -o $(BUNDLES_DIR)/$(BUNDLE_NAME).dmg
 	$(Q)$(RM) "$(TMP_DMG)"
 
