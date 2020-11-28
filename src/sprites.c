@@ -60,6 +60,7 @@ static bool s_iconLoaded = false;
 static void Sprites_Load(const char *filename, const char *altFilename, uint16 expectedCount)
 {
 	uint8 *buffer;
+	uint32 buflen = 0;
 	uint16 count;
 	uint16 i;
 	uint16 size;
@@ -77,9 +78,13 @@ static void Sprites_Load(const char *filename, const char *altFilename, uint16 e
 			return;
 		}
 	}
-	buffer = File_ReadWholeFile(filename);
+	buffer = File_ReadWholeFile(filename, &buflen);
 	if (buffer == NULL) return;
 
+	if (buflen < 2) {
+		Error("%s is too short\n", filename);
+		return;
+	}
 	count = READ_LE_UINT16(buffer);
 	Debug("%s: %d %d\n", filename, count, expectedCount);
 	oldFormat = (4 + (uint32)count * 4) != READ_LE_UINT32(buffer + 2);

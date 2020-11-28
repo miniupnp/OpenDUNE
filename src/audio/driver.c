@@ -436,7 +436,7 @@ void Driver_LoadFile(const char *musicName, Driver *driver)
 	assert(len <= sizeof(driver->filename));
 	memcpy(driver->filename, filename, len);
 
-	driver->content = File_ReadWholeFile(filename);
+	driver->content = File_ReadWholeFile(filename, NULL);
 	driver->contentMalloced = true;
 	Debug("Driver_LoadFile(%s, %p): %s loaded\n", musicName, driver, filename);
 }

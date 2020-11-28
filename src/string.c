@@ -110,18 +110,29 @@ char *String_Get_ByIndex(uint16 stringID)
 static void String_Load(const char *filename, bool compressed, uint16 start, uint16 end)
 {
 	uint8 *buf;
+	uint32 buflen = 0;
 	uint16 count;
 	uint16 i;
 	char buffer[1024];
 
-	buf = File_ReadWholeFile(String_GenerateFilename(filename));
+	buf = File_ReadWholeFile(String_GenerateFilename(filename), &buflen);
+	if (buflen < 2) {
+		Error("Could not load StringFile %s, length = %u\n", filename, (unsigned)buflen);
+		return;
+	}
 	count = READ_LE_UINT16(buf) / 2;
+	Debug("String_Load(%s) %hu\n", filename, count);
 
 	if (end == 0) end = start + count - 1;
+	// TODO : check length
 
 	for (i = 0; i < count && s_stringsCount <= end; i++) {
 		uint16 len;
-		const char *src = (const char *)buf + READ_LE_UINT16(buf + i * 2);
+		const char *src;
+		uint16 offset;
+
+		offset = READ_LE_UINT16(buf + i * 2);
+		src = (const char *)buf + offset;
 
 		if (compressed) {
 			len = String_DecompressAndTranslate(src, buffer, (uint16)sizeof(buffer));
@@ -135,6 +146,8 @@ static void String_Load(const char *filename, bool compressed, uint16 start, uin
 			memcpy(s_stringsBuffer + s_strings[s_stringsCount++], buffer, len + 1);
 			s_strings[s_stringsCount] = s_strings[s_stringsCount - 1] + len + 1;
 			/* s_strings[s_stringsCount] must point to the available space in buffer */
+		} else {
+			Warning("Empty string %s %hu %hu\n", filename, i, s_stringsCount);
 		}
 	}
 	free(buf);

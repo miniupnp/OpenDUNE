@@ -912,7 +912,7 @@ uint32 File_ReadBlockFile_Ex(enum SearchDirectory dir, const char *filename, voi
  * @param filename The name of the file to open.
  * @return The pointer to allocated memory where the file has been read.
  */
-void *File_ReadWholeFile(const char *filename)
+void *File_ReadWholeFile(const char *filename, uint32 *plength)
 {
 	uint8 index;
 	uint32 length;
@@ -924,7 +924,7 @@ void *File_ReadWholeFile(const char *filename)
 
 	buffer = malloc(length + 1);
 	if (buffer == NULL) {
-		Error("Failed to allocate %lu bytes of memory.\n", (unsigned long)length + 1);
+		Error("Failed to allocate %lu bytes of memory to read.\n", (unsigned long)length + 1, filename);
 		return NULL;
 	}
 	if (File_Read(index, buffer, length) != length) {
@@ -937,6 +937,7 @@ void *File_ReadWholeFile(const char *filename)
 
 	File_Close(index);
 
+	if (plength != NULL) *plength = length;
 	return buffer;
 }
 

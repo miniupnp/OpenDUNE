@@ -59,6 +59,7 @@ uint16 Font_GetStringWidth(const char *string)
 static Font *Font_LoadFile(const char *filename)
 {
 	uint8 *buf;
+	uint32 buflen = 0;
 	Font *f;
 	uint8 i;
 	uint16 start;
@@ -68,7 +69,7 @@ static Font *Font_LoadFile(const char *filename)
 
 	if (!File_Exists(filename)) return NULL;
 
-	buf = (uint8 *)File_ReadWholeFile(filename);
+	buf = (uint8 *)File_ReadWholeFile(filename, &buflen);
 
 	if (buf[2] != 0x00 || buf[3] != 0x05) {
 		free(buf);

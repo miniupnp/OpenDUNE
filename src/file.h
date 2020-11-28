@@ -50,7 +50,7 @@ extern uint32 File_GetSize(uint8 index);
 extern void File_Delete_Personal(const char *filename);
 extern void File_Create_Personal(const char *filename);
 extern uint32 File_ReadBlockFile_Ex(enum SearchDirectory dir, const char *filename, void *buffer, uint32 length);
-extern void *File_ReadWholeFile(const char *filename);
+extern void *File_ReadWholeFile(const char *filename, uint32 *plength);
 extern uint16 *File_ReadWholeFileLE16(const char *filename);
 extern uint32 File_ReadFile(const char *filename, void *buf);
 extern uint8 ChunkFile_Open_Ex(enum SearchDirectory dir, const char *filename);
