@@ -2,6 +2,9 @@
 
 #include <stdlib.h>
 #include <string.h>
+#ifdef TOS
+#include <mint/osbind.h>
+#endif
 #include "types.h"
 #include "../os/common.h"
 #include "../os/strings.h"
@@ -178,6 +181,13 @@ void Voice_Play(int16 voiceID)
 static void Voice_UnloadVoice(uint16 voice)
 {
 	if (g_voiceData[voice] != NULL) {
+#ifdef TOS
+		if (0 == memcmp(g_voiceData[voice], ".snd", 4)) {	/* AU magic */
+			Mfree(g_voiceData[voice]);
+			g_voiceData[voice] = NULL;
+			return;
+		}
+#endif
 		free(g_voiceData[voice]);
 		g_voiceData[voice] = NULL;
 	}
@@ -442,6 +452,32 @@ static void *Sound_LoadVoc(const char *filename, uint32 *retFileSize)
 	void *res;
 
 	if (filename == NULL) return NULL;
+#ifdef TOS
+	{
+		char au_filename[32];
+		int i;
+		for (i = 0; filename[i] != '\0' && filename[i] != '.' && i < (32 - 4); i++)
+			au_filename[i] = filename[i];
+		au_filename[i++] = '.';
+		au_filename[i++] = 'A';
+		au_filename[i++] = 'U';
+		au_filename[i] = '\0';
+		if (File_Exists_GetSize(au_filename, &fileSize))
+		{
+			fileSize += 1;
+			fileSize &= 0xFFFFFFFE;
+
+			*retFileSize = fileSize;
+			res = (void *)Mxalloc(fileSize, MX_STRAM); /*res = malloc(fileSize);*/
+			if (res == NULL) {
+				Error("Failed to allocate %u bytes of ST RAM for %s.\n", fileSize, au_filename);
+				return NULL;
+			}
+			Driver_Voice_LoadFile(au_filename, res, fileSize);
+			return res;
+		}
+	}
+#endif
 	if (!File_Exists_GetSize(filename, &fileSize)) return NULL;
 
 	fileSize += 1;
