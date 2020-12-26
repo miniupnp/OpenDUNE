@@ -414,7 +414,6 @@ static void GUI_DrawChar(unsigned char c, uint16 x, uint16 y)
 	if (x >= SCREEN_WIDTH || (x + fc->width) > SCREEN_WIDTH) return;
 	if (y >= SCREEN_HEIGHT || (y + g_fontCurrent->height) > SCREEN_HEIGHT) return;
 
-	GFX_Screen_SetDirty(SCREEN_ACTIVE, x, y, x + fc->width, y + g_fontCurrent->height);
 	x += y * (uint16)SCREEN_WIDTH;
 	remainingWidth = SCREEN_WIDTH - fc->width;
 
@@ -464,6 +463,7 @@ void GUI_DrawText(const char *string, int16 left, int16 top, uint8 fgColour, uin
 	uint8 colours[2];
 	uint16 x;
 	uint16 y;
+	uint16 right;
 	const char *s;
 
 	if (g_fontCurrent == NULL) return;
@@ -480,11 +480,13 @@ void GUI_DrawText(const char *string, int16 left, int16 top, uint8 fgColour, uin
 
 	s = string;
 	x = left;
+	right = left;
 	y = top;
 	while (*s != '\0') {
 		uint16 width;
 
 		if (*s == '\n' || *s == '\r') {
+			if (x > right) right = x;
 			x = left;
 			y += g_fontCurrent->height;
 
@@ -504,6 +506,8 @@ void GUI_DrawText(const char *string, int16 left, int16 top, uint8 fgColour, uin
 		x += width;
 		s++;
 	}
+	if (x > right) right = x;
+	GFX_Screen_SetDirty(SCREEN_ACTIVE, left, top, right, y + g_fontCurrent->height);
 }
 
 /**
