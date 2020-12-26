@@ -1,5 +1,6 @@
 /** @file src/audio/dsp_atari.c Atari DMA Sound implementation of the DSP. */
 
+#include <string.h>
 #include <mint/osbind.h>
 #include <mint/ostruct.h>
 #include <mint/cookie.h>
@@ -10,7 +11,7 @@
 
 #include "dsp.h"
 
-extern void set_dma_sound(void * buffer, uint32 len);
+extern void set_dma_sound(const void * buffer, uint32 len);
 extern void stop_dma_sound(void);	/* needs to be called in supervisor mode */
 extern uint32 get_dma_status(void);	/* needs to be called in supervisor mode */
 
@@ -79,7 +80,7 @@ static uint32 DSP_ConvertAudio(uint32 freq, const uint8 * src, uint32 len)
 	uint8 sample;
 	uint32 i, j;
 
-	Debug("converting freq from %uHz to %u.\n",
+	Warning("converting freq from %uHz to %u.\n",
 	        freq, DMASOUND_FREQ);
 
 	if(newlen > s_stRamBufferSize) {
@@ -107,6 +108,15 @@ void DSP_Play(const uint8 *data)
 	uint32 len;
 	uint32 freq;
 	uint32 sampleLen;
+
+	if (0 == memcmp(data, ".snd", 4))	/* AU magic */
+	{
+		/* .AU file detected */
+		len = READ_BE_UINT32(data + 8);		/* offset 8 : data size */
+		data += READ_BE_UINT32(data + 4);	/* offset 4 : data offset in file */
+		set_dma_sound(data, len);
+		return;
+	}
 
 	/* skip Create Voice File header */
 	data += READ_LE_UINT16(data + 20);
