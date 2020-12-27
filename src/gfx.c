@@ -314,7 +314,7 @@ void GFX_PutPixel(uint16 x, uint16 y, uint8 colour)
 	if (y >= SCREEN_HEIGHT) return;
 	if (x >= SCREEN_WIDTH) return;
 
-	*((uint8 *)GFX_Screen_GetActive() + y * SCREEN_WIDTH + x) = colour;
+	*((uint8 *)GFX_Screen_GetActive() + y * (uint16)SCREEN_WIDTH + x) = colour;
 }
 
 /**
@@ -507,7 +507,7 @@ uint8 GFX_GetPixel(uint16 x, uint16 y)
 	if (y >= SCREEN_HEIGHT) return 0;
 	if (x >= SCREEN_WIDTH) return 0;
 
-	return *((uint8 *)GFX_Screen_GetActive() + y * SCREEN_WIDTH + x);
+	return *((uint8 *)GFX_Screen_GetActive() + y * (uint16)SCREEN_WIDTH + x);
 }
 
 uint16 GFX_GetSize(int16 width, int16 height)
@@ -528,24 +528,22 @@ uint16 GFX_GetSize(int16 width, int16 height)
  * @param height The height.
  * @param buffer The buffer to copy from.
  */
-void GFX_CopyFromBuffer(int16 left, int16 top, uint16 width, uint16 height, uint8 *buffer)
+void GFX_CopyFromBuffer(uint16 left, uint16 top, uint16 width, uint16 height, const uint8 *buffer)
 {
 	uint8 *screen;
 
 	if (width == 0) return;
 	if (height == 0) return;
 
-	if (left < 0) left = 0;
 	if (left >= SCREEN_WIDTH) left = SCREEN_WIDTH - 1;
 
-	if (top < 0) top = 0;
 	if (top >= SCREEN_HEIGHT) top = SCREEN_HEIGHT - 1;
 
 	if (width  > SCREEN_WIDTH - left) width  = SCREEN_WIDTH - left;
 	if (height > SCREEN_HEIGHT - top) height = SCREEN_HEIGHT - top;
 
 	screen = GFX_Screen_Get_ByIndex(SCREEN_0);
-	screen += top * SCREEN_WIDTH + left;
+	screen += top * (uint16)SCREEN_WIDTH + left;
 
 	GFX_Screen_SetDirty(SCREEN_0, left, top, left + width, top + height);
 
@@ -564,24 +562,22 @@ void GFX_CopyFromBuffer(int16 left, int16 top, uint16 width, uint16 height, uint
  * @param height The height.
  * @param buffer The buffer to copy to.
  */
-void GFX_CopyToBuffer(int16 left, int16 top, uint16 width, uint16 height, uint8 *buffer)
+void GFX_CopyToBuffer(uint16 left, uint16 top, uint16 width, uint16 height, uint8 *buffer)
 {
 	uint8 *screen;
 
 	if (width == 0) return;
 	if (height == 0) return;
 
-	if (left < 0) left = 0;
 	if (left >= SCREEN_WIDTH) left = SCREEN_WIDTH - 1;
 
-	if (top < 0) top = 0;
 	if (top >= SCREEN_HEIGHT) top = SCREEN_HEIGHT - 1;
 
 	if (width  > SCREEN_WIDTH - left) width  = SCREEN_WIDTH - left;
 	if (height > SCREEN_HEIGHT - top) height = SCREEN_HEIGHT - top;
 
 	screen = GFX_Screen_Get_ByIndex(SCREEN_0);
-	screen += top * SCREEN_WIDTH + left;
+	screen += top * (uint16)SCREEN_WIDTH + left;
 
 	while (height-- != 0) {
 		memcpy(buffer, screen, width);
