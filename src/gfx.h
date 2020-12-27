@@ -41,8 +41,8 @@ extern void GFX_ClearBlock(Screen index);
 extern void GFX_SetPalette(uint8 *palette);
 extern uint8 GFX_GetPixel(uint16 x, uint16 y);
 extern uint16 GFX_GetSize(int16 width, int16 height);
-extern void GFX_CopyFromBuffer(int16 left, int16 top, uint16 width, uint16 height, uint8 *buffer);
-extern void GFX_CopyToBuffer(int16 left, int16 top, uint16 width, uint16 height, uint8 *buffer);
+extern void GFX_CopyFromBuffer(uint16 left, uint16 top, uint16 width, uint16 height, const uint8 *buffer);
+extern void GFX_CopyToBuffer(uint16 left, uint16 top, uint16 width, uint16 height, uint8 *buffer);
 
 #define GFX_STORE_DIRTY_AREA
 #if defined(TOS)
