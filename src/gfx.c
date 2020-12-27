@@ -24,7 +24,7 @@ static uint16 s_tileSpacing  = 0;	/* bytes to skip between each line. == SCREEN_
 static uint16 s_tileHeight   = 0;	/* "icon" sprites height (lines) */
 static uint16 s_tileWidth    = 0;	/* "icon" sprites width in bytes. each bytes contains 2 pixels. 4 MSB = left, 4 LSB = right */
 static uint8  s_tileMode     = 0;
-static uint8  s_tileByteSize = 0;	/* size in byte of one sprite pixel data = s_tileHeight * s_tileWidth / 2 */
+static uint8  s_tileShift    = 0;	/* log2 of the tile size in bytes : 7 for 128 bytes */
 
 /* SCREEN_0 = 320x200 = 64000 = 0xFA00   The main screen buffer, 0xA0000 Video RAM in DOS Dune 2
  * SCREEN_1 = 64506 = 0xFBFA
@@ -236,8 +236,8 @@ void GFX_DrawTile(uint16 tileID, uint16 x, uint16 y, uint8 houseID)
 	}
 
 	wptr = GFX_Screen_GetActive();
-	wptr += y * SCREEN_WIDTH + x;
-	rptr = g_tilesPixels + (tileID * s_tileByteSize);
+	wptr += y * (uint16)SCREEN_WIDTH + x;
+	rptr = g_tilesPixels + (tileID << s_tileShift);
 
 	/* tiles with transparent pixels : [1 : 33] U [108 : 122] and 124
 	 * palettes 1 to 18 and 22 and 24 */
@@ -279,17 +279,23 @@ void GFX_Init_TilesInfo(uint16 widthSize, uint16 heightSize)
 {
 	/* NOTE : shouldn't it be (heightSize < 3 && widthSize < 3) ??? */
 	if (widthSize == heightSize && widthSize < 3) {
+		uint16 byteSize;
 		s_tileMode = widthSize & 2;
 
 		s_tileWidth   = widthSize << 2;
 		s_tileHeight  = heightSize << 3;
 		s_tileSpacing = SCREEN_WIDTH - s_tileHeight;
-		s_tileByteSize = s_tileWidth * s_tileHeight;
+		/* Compute the number of bit shift to multiply by s_tileWidth * s_tileHeight */
+		byteSize = s_tileWidth * s_tileHeight;
+		s_tileShift = 0;
+		while (((uint16)1 << s_tileShift) < byteSize)
+			s_tileShift++;
 	} else {
 		/* NOTE : is it dead code ? */
 		/* default to 8x8 sprites */
 		s_tileMode = 4;
-		s_tileByteSize = 8*4;
+		/*s_tileByteSize = 8*4;*/
+		s_tileShift = 5;
 
 		s_tileWidth   = 4;
 		s_tileHeight  = 8;
