@@ -22,8 +22,8 @@ extern uint32 get_dma_status(void);	/* needs to be called in supervisor mode */
 /*#define DMASOUND_FREQ 25033*/
 #define DMASOUND_BUFFER_SIZE	64*1024
 
-static uint8 *s_stRamBuffer;
-static uint32 s_stRamBufferSize;
+uint8 *g_stRamBuffer = NULL;
+uint32 g_stRamBufferSize = 0;
 
 void DSP_Stop(void)
 {
@@ -33,11 +33,11 @@ void DSP_Stop(void)
 void DSP_Uninit(void)
 {
 	DSP_Stop();
-	if (s_stRamBuffer != NULL) {
-		Mfree(s_stRamBuffer);
-		s_stRamBuffer = NULL;
+	if (g_stRamBuffer != NULL) {
+		Mfree(g_stRamBuffer);
+		g_stRamBuffer = NULL;
 	}
-	s_stRamBufferSize = 0;
+	g_stRamBufferSize = 0;
 }
 
 bool DSP_Init(void) 
@@ -54,12 +54,12 @@ bool DSP_Init(void)
 	}
 
 	/* allocate ST RAM buffer for audio */
-	s_stRamBufferSize = DMASOUND_BUFFER_SIZE;
-	s_stRamBuffer = (uint8 *)Mxalloc(s_stRamBufferSize, MX_STRAM);
-	if(s_stRamBuffer == NULL) {
+	g_stRamBufferSize = DMASOUND_BUFFER_SIZE;
+	g_stRamBuffer = (uint8 *)Mxalloc(g_stRamBufferSize, MX_STRAM);
+	if(g_stRamBuffer == NULL) {
 		Error("Failed to allocate %u bytes of ST RAM for DMA sound.\n",
-		      s_stRamBufferSize);
-		s_stRamBufferSize = 0;
+		      g_stRamBufferSize);
+		g_stRamBufferSize = 0;
 		return false;
 	}
 	return true;
@@ -83,16 +83,16 @@ static uint32 DSP_ConvertAudio(uint32 freq, const uint8 * src, uint32 len)
 	Warning("converting freq from %uHz to %u.\n",
 	        freq, DMASOUND_FREQ);
 
-	if(newlen > s_stRamBufferSize) {
-		if(Mshrink(s_stRamBuffer, newlen) == 0) {
-			s_stRamBufferSize = newlen;
+	if(newlen > g_stRamBufferSize) {
+		if(Mshrink(g_stRamBuffer, newlen) == 0) {
+			g_stRamBufferSize = newlen;
 		} else {
 			Error("Mshrink() of ST RAM buffer failed. newlen=%u\n", newlen);
 			return 0;
 		}
 	}
 
-	w = s_stRamBuffer;
+	w = g_stRamBuffer;
 	for (i = 1, j = 0; i <= len; i++) {
 		sample = (*src++) ^ 0x80;	/* unsigned to signed conversion */
 		while (j < i * DMASOUND_FREQ) {
@@ -147,7 +147,7 @@ void DSP_Play(const uint8 *data)
 	sampleLen = DSP_ConvertAudio(freq, data + 2, len);
 
 	if(sampleLen > 0) {
-		set_dma_sound(s_stRamBuffer, sampleLen);
+		set_dma_sound(g_stRamBuffer, sampleLen);
 	}
 }
 

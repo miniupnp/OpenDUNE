@@ -9,8 +9,12 @@
 #include "../os/common.h"
 #include "../os/strings.h"
 #include "../os/sleep.h"
+#include "../os/error.h"
 
 #include "sound.h"
+#ifdef TOS
+#include "dsp.h"
+#endif
 
 #include "driver.h"
 #include "mt32mpu.h"
@@ -355,9 +359,18 @@ void Sound_StartSound(uint16 index)
 			/* that sound was not preloaded */
 			snprintf(filenameBuffer, sizeof(filenameBuffer), filename + 1, g_playerHouseID < HOUSE_MAX ? g_table_houseInfo[g_playerHouseID].prefixChar : ' ');
 
+			Debug("Sound_StartSound(%hu) : %s => %s not preloaded\n", filename, filenameBuffer);
+#ifdef TOS
+			if (g_stRamBuffer != NULL) {
+				Driver_Voice_LoadFile(filenameBuffer, g_stRamBuffer, g_stRamBufferSize);
+
+				Driver_Voice_Play(g_stRamBuffer, 0xFF);
+			}
+#else
 			Driver_Voice_LoadFile(filenameBuffer, g_readBuffer, g_readBufferSize);
 
 			Driver_Voice_Play(g_readBuffer, 0xFF);
+#endif
 		}
 	}
 }
