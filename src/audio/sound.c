@@ -154,9 +154,7 @@ void Voice_PlayAtTile(int16 voiceID, tile32 position)
 
 	if (g_enableVoices != 0 && index != 0xFFFF && g_voiceData[index] != NULL && g_table_voices[index].priority >= s_currentVoicePriority) {
 		s_currentVoicePriority = g_table_voices[index].priority;
-		memmove(g_readBuffer, g_voiceData[index], g_voiceDataSize[index]);
-
-		Driver_Voice_Play(g_readBuffer, s_currentVoicePriority);
+		Driver_Voice_Play(g_voiceData[index], s_currentVoicePriority);
 	} else {
 		Driver_Sound_Play(voiceID, volume);
 	}
@@ -354,6 +352,7 @@ void Sound_StartSound(uint16 index)
 
 		filename = g_table_voices[index].string;
 		if (filename[0] == '?') {
+			/* that sound was not preloaded */
 			snprintf(filenameBuffer, sizeof(filenameBuffer), filename + 1, g_playerHouseID < HOUSE_MAX ? g_table_houseInfo[g_playerHouseID].prefixChar : ' ');
 
 			Driver_Voice_LoadFile(filenameBuffer, g_readBuffer, g_readBufferSize);
